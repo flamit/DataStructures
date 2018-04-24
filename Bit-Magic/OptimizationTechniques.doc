@@ -20,3 +20,4 @@ Generalizing the above pattern, a number that can be written in 2n form will hav
 
  N = 87 (1010111 – binary form)
  N%2 = N & (2-1) = 1010111 & 1 = 1 = 1
+
