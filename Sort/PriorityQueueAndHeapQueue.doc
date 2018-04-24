@@ -1,0 +1,171 @@
+Applications of Priority Queue
+A Priority Queue is different from a normal queue, because instead of being a “first-in-first-out”, values come out in order by priority. It is an abstract data type that captures the idea of a container whose elements have “priorities” attached to them. An element of highest priority always appears at the front of the queue. If that element is removed, the next highest priority element advances to the front.
+A priority queue is typically implemented using Heap data structure.
+Applications:
+Dijkstra’s Shortest Path Algorithm using priority queue: When the graph is stored in the form of adjacency list or matrix, priority queue can be used to extract minimum efficiently when implementing Dijkstra’s algorithm.
+Prim’s algorithm: It is used to implement Prim’s Algorithm to store keys of nodes and extract minimum key node at every step.
+Data compression : It is used in Huffman codes which is used to compresses data. 
+Artificial Intelligence : A* Search Algorithm : The A* search algorithm finds the shortest path between two vertices of a weighted graph, trying out the most promising routes first. The priority queue (also known as the fringe) is used to keep track of unexplored routes, the one for which a lower bound on the total path length is smallest is given highest priority.
+Heap Sort : Heap sort is typically implemented using Heap which is an implementation of Priority Queue.
+Operating systems: It is also use in Operating System for load balancing (load balancing on server), interrupt handling.
+Why is Binary Heap Preferred over BST for Priority Queue?
+A typical Priority Queue requires following operations to be efficient. 
+Get Top Priority Element (Get minimum or maximum)
+Insert an element
+Remove top priority element
+Decrease Key
+A Binary Heap supports above operations with following time complexities: 
+O(1)
+O(Logn)
+O(Logn)
+O(Logn)
+                                                 
+ 
+A Self Balancing Binary Search Tree like AVL Tree, Red-Black Tree, etc can also support above operations with same time complexities.
+Finding minimum and maximum are not naturally O(1), but can be easily implemented in 
+O(1) by keeping an extra pointer to minimum or maximum and updating the pointer with insertion and deletion if required. With deletion we can update by finding inorder predecessor or successor.
+Inserting an element is naturally O(Logn) 
+Removing maximum or minimum are also O(Logn) 
+Decrease key can be done in O(Logn) by doing a deletion followed by insertion. 
+So why is Binary Heap Preferred for Priority Queue?
+•	Since Binary Heap is implemented using arrays, there is always better locality of reference and operations are more cache friendly.
+•	Although operations are of same time complexity, constants in Binary Search Tree are higher. 
+•	We can build a Binary Heap in O(n) time. Self Balancing BSTs require O(nLogn) time to construct. 
+•	Binary Heap doesn’t require extra space for pointers. 
+•	Binary Heap is easier to implement. 
+•	There are variations of Binary Heap like Fibonacci Heap that can support insert and decrease-key in Θ(1) time
+Is Binary Heap always better?
+Although Binary Heap is for Priority Queue, BSTs have their own advantages and the list of advantages is in-fact bigger compared to binary heap.
+•	Searching an element in self-balancing BST is O(Logn) which is O(n) in Binary Heap. 
+•	We can print all elements of BST in sorted order in O(n) time, but Binary Heap requires O(nLogn) time. 
+•	Floor and ceil can be found in O(Logn) time. 
+•	K’th largest/smallest element be found in O(Logn) time by augmenting tree with an additional field. 
+
+Priority Queue
+A priority queue is an abstract data type (ADT) which is like a regular queue or stack data structure, but where additionally each element has a priority associated with it. In a priority queue, an element with high priority is served before an element with low priority. If two elements have the same priority, they are served according to their order in the queue.
+While priority queues are often implemented with heaps, they are conceptually distinct from heaps. A priority queue is an abstract concept like a list or a map; just as a list can be implemented with a linked list or an array, a priority queue can be implemented with a heap or a variety of other methods such as an unordered array.
+
+Sample A - simplest
+The following code the most simplest usage of the priority queue.
+try:
+    import Queue as Q  # ver. < 3.0
+except ImportError:
+    import queue as Q
+
+q = Q.PriorityQueue()
+q.put(10)
+q.put(1)
+q.put(5)
+while not q.empty():
+	print q.get(),
+Output:
+1 5 10
+As we can see from the output, the queue stores the elements by priority not by the order of element creation. Note that depending on the Python versions, the name of the priority queue is different. So, we used try and except pair so that we can adjust our container to the version.
+The priority queue not only stores the built-in primitives but also any objects as shown in next section. 
+
+
+
+
+
+
+Sample B - tuple
+The priority queue can store objects such as tuples:
+try:
+    import Queue as Q  # ver. < 3.0
+except ImportError:
+    import queue as Q
+
+q = Q.PriorityQueue()
+q.put((10,'ten'))
+q.put((1,'one'))
+q.put((5,'five'))
+while not q.empty():
+    print q.get(),
+Output:
+(1, 'one') (5, 'five') (10, 'ten')
+
+
+
+
+
+
+Sample C - class objects using __cmp__()
+Python isn't strongly typed, so we can save anything we like: just as we stored a tuple of (priority,thing) in previous section. We can also store class objects if we override __cmp__() method:
+try:
+    import Queue as Q  # ver. < 3.0
+except ImportError:
+    import queue as Q
+
+class Skill(object):
+    def __init__(self, priority, description):
+        self.priority = priority
+        self.description = description
+        print 'New Level:', description
+        return
+    def __cmp__(self, other):
+        return cmp(self.priority, other.priority)
+
+q = Q.PriorityQueue()
+
+q.put(Skill(5, 'Proficient'))
+q.put(Skill(10, 'Expert'))
+q.put(Skill(1, 'Novice'))
+
+while not q.empty():
+    next_level = q.get()
+    print 'Processing level:', next_level.description
+Output:
+New Level: Proficient
+New Level: Expert
+New Level: Novice
+Processing level: Novice
+Processing level: Proficient
+Processing level: Expert
+heapq - Heap queue
+The heapq implements a min-heap sort algorithm suitable for use with Python's lists.
+This module provides an implementation of the heap queue algorithm, also known as the priority queue algorithm.
+Heaps are binary trees for which every parent node has a value less than or equal to any of its children. This implementation uses arrays for which $heap\left[k\right] \le heap\left[2*k+1\right]$ and $heap\left[k\right] \le heap\left[2*k+2\right]$ for all $k$, counting elements from zero. For the sake of comparison, non-existing elements are considered to be infinite. The interesting property of a heap is that its smallest element is always the root, $heap\left[0\right]$.
+From https://docs.python.org/2/library/heapq.html.
+import heapq
+
+heap = []
+heapq.heappush(heap, (1, 'one'))
+heapq.heappush(heap, (10, 'ten'))
+heapq.heappush(heap, (5,'five'))
+
+for x in heap:
+	print x,
+print
+
+heapq.heappop(heap)
+
+for x in heap:
+	print x,
+print 
+
+# the smallest
+print heap[0]
+Output:
+(1, 'one') (10, 'ten') (5, 'five')
+(5, 'five') (10, 'ten')
+(5, 'five')
+heapq - heapify
+We can Transform list $x$ into a heap, in-place, in linear time:
+heapq.heapify(x)
+For example,
+import heapq
+
+heap = [(1, 'one'), (10, 'ten'), (5,'five')]
+heapq.heapify(heap)
+for x in heap:
+	print x,
+print
+
+heap[1] = (9, 'nine')
+for x in heap:
+	print x,
+Output:
+(1, 'one') (10, 'ten') (5, 'five')
+(1, 'one') (9, 'nine') (5, 'five')
+Note that we replaced (10, 'ten') with (9, 'nine').
+
