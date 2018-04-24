@@ -68,3 +68,36 @@ int main()
    getchar();
    return 0;
 }
+
+When above program is run on little endian machine, gives “67 45 23 01” as output , while if it is run on endian machine, gives “01 23 45 67” as output.
+Is there a quick way to determine endianness of your machine?
+There are n no. of ways for determining endianness of your machine. Here is one quick way of doing the same.
+#include <stdio.h>
+int main() 
+{
+   unsigned int i = 1;
+   char *c = (char*)&i;
+   if (*c)    
+       printf("Little endian");
+   else
+       printf("Big endian");
+   getchar();
+   return 0;
+}
+Run on IDE
+In the above program, a character pointer c is pointing to an integer i. Since size of character is 1 byte when the character pointer is de-referenced it will contain only first byte of integer. If machine is little endian then *c will be 1 (because last byte is stored first) and if machine is big endian then *c will be 0.
+
+Does endianness matter for programmers?
+Most of the times compiler takes care of endianness, however, endianness becomes an issue in following cases.
+It matters in network programming: Suppose you write integers to file on a little endian machine and you transfer this file to a big endian machine. Unless there is little andian to big endian transformation, big endian machine will read the file in reverse order. You can find such a practical example here.
+Standard byte order for networks is big endian, also known as network byte order. Before transferring data on network, data is first converted to network byte order (big endian). 
+Sometimes it matters when you are using type casting, below program is an example.
+#include <stdio.h>
+int main()
+{
+    unsigned char arr[2] = {0x01, 0x00};
+    unsigned short int x = *(unsigned short int *) arr;
+    printf("%d", x);
+    getchar();
+    return 0;
+}
