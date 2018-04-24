@@ -1,0 +1,22 @@
+I know it's equal to sizeof(int). The size of an int is really compiler dependent. Back in the day, when processors were 16 bit, an int was 2 bytes. Nowadays, it's most often 4 bytes on a 32-bit as well as 64-bit systems. 
+Still, using sizeof(int) is the best way to get the size of an integer for the specific system the program is executed on.
+
+Optimization Techniques | Set 1 (Modulus)
+
+Modulus operator is costly.
+
+The modulus operator (%) in various languages is costly operation. Ultimately every operator/operation must result in processor instructions. Some processors won't have modulus instruction at hardware level, in such case the compilers will insert stubs (predefined functions) to perform modulus. It impacts performance.
+
+There is simple technique to extract remainder when a number is divided by another number (divisor) that is power of 2? A number that is an exact power of 2 will have only one bit set in it's binary representation. Consider the following powers of 2 and their binary representations
+
+2 – 10
+4 – 100
+8 – 1000
+16  – 10000
+
+We can get mask for those zeros by decrementing the divisor by 1.
+
+Generalizing the above pattern, a number that can be written in 2n form will have only one bit set followed by n zeros on the right side of 1. When a number (N) divided by (2n), the bit positions corresponding to the above mentioned zeros will contribute to the remainder of division operation. An example can make it clear,
+
+ N = 87 (1010111 – binary form)
+ N%2 = N & (2-1) = 1010111 & 1 = 1 = 1
