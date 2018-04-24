@@ -1,0 +1,940 @@
+
+	Multithreading in Python 2 
+This article covers the basics of multithreading in Python programming language. Just like multiprocessing, multithreading is a way of achieving multitasking. In multithreading, the concept of threads is used.
+Let us first understand the concept of thread in computer architecture.
+Thread
+In computing, a process is an instance of a computer program that is being executed. Any process has 3 basic components:
+	An executable program.
+	The associated data needed by the program (variables, work space, buffers, etc.)
+	The execution context of the program (State of process)
+
+A thread is an entity within a process that can be scheduled for execution. Also, it is the smallest unit of processing that can be performed in an OS (Operating System).
+In simple words, a thread is a sequence of such instructions within a program that can be executed independently of other code. For simplicity, you can assume that a thread is simply a subset of a process!
+A thread contains all this information in a Thread Control Block (TCB):
+	Thread Identifier: Unique id (TID) is assigned to every new thread
+	Stack pointer: Points to thread’s stack in the process. Stack contains the local variables under thread’s scope.
+	Program counter: a register which stores the address of the instruction currently being executed by thread.
+	Thread state: can be running, ready, waiting, start or done.
+	Thread’s register set: registers assigned to thread for computations.
+	Parent process Pointer: A pointer to the Process control block (PCB) of the process that the thread lives on.
+Consider the diagram below to understand the relation between process and its thread:
+ 
+Multithreading
+Multiple threads can exist within one process where:
+	Each thread contains its own register set and local variables (stored in stack).
+	All thread of a process share global variables (stored in heap) and the program code.
+Consider the diagram below to understand how multiple threads exist in memory:
+ 
+Multithreading is defined as the ability of a processor to execute multiple threads concurrently.
+In a simple, single-core CPU, it is achieved using frequent switching between threads. This is termed as context switching. In context switching, the state of a thread is saved and state of another thread is loaded whenever any interrupt (due to I/O or manually set) takes place. Context switching takes place so frequently that all the threads appear to be running parallely (this is termed as multitasking).
+Consider the diagram below in which a process contains two active threads:
+ 
+Multithreading in Python
+In Python, the threading module provides a very simple and intuitive API for spawning multiple threads in a program.
+Let us consider a simple example using threading module:
+# Python program to illustrate the concept
+# of threading
+# importing the threading module
+import threading
+ 
+def print_cube(num):
+    """
+    function to print cube of given num
+    """
+    print("Cube: {}".format(num * num * num))
+ 
+def print_square(num):
+    """
+    function to print square of given num
+    """
+    print("Square: {}".format(num * num))
+ 
+if __name__ == "__main__":
+    # creating thread
+    t1 = threading.Thread(target=print_square, args=(10,))
+    t2 = threading.Thread(target=print_cube, args=(10,))
+ 
+    # starting thread 1
+    t1.start()
+    # starting thread 2
+    t2.start()
+ 
+    # wait until thread 1 is completely executed
+    t1.join()
+    # wait until thread 2 is completely executed
+    t2.join()
+ 
+    # both threads completely executed
+    print("Done!")
+Run on IDE
+Square: 100
+Cube: 1000
+Done!
+Let us try to understand the above code:
+	To import the threading module, we do: 
+	import threading
+	To create a new thread, we create an object of Thread class. It takes following arguments: 
+	target: the function to be executed by thread
+	args: the arguments to be passed to the target function
+In above example, we created 2 threads with different target functions:
+t1 = threading.Thread(target=print_square, args=(10,))
+t2 = threading.Thread(target=print_cube, args=(10,))
+	To start a thread, we use start method of Thread class. 
+	t1.start()
+	t2.start()
+	Once the threads start, the current program (you can think of it like a main thread) also keeps on executing. In order to stop execution of current program until a thread is complete, we use join method. 
+	t1.join()
+	t2.join()
+As a result, the current program will first wait for the completion of t1 and then t2. Once, they are finished, the remaining statements of current program are executed.
+Consider the diagram below for a better understanding of how above program works:
+ 
+Consider the python program given below in which we print thread name and corresponding process for each task:
+# Python program to illustrate the concept
+# of threading
+import threading
+import os
+ 
+def task1():
+    print("Task 1 assigned to thread: {}".format(threading.current_thread().name))
+    print("ID of process running task 1: {}".format(os.getpid()))
+ 
+def task2():
+    print("Task 2 assigned to thread: {}".format(threading.current_thread().name))
+    print("ID of process running task 2: {}".format(os.getpid()))
+ 
+if __name__ == "__main__":
+ 
+    # print ID of current process
+    print("ID of process running main program: {}".format(os.getpid()))
+ 
+    # print name of main thread
+    print("Main thread name: {}".format(threading.main_thread().name))
+ 
+    # creating threads
+    t1 = threading.Thread(target=task1, name='t1')
+    t2 = threading.Thread(target=task2, name='t2')  
+ 
+    # starting threads
+    t1.start()
+    t2.start()
+ 
+    # wait until all threads finish
+    t1.join()
+    t2.join()
+Run on IDE
+ID of process running main program: 11758
+Main thread name: MainThread
+Task 1 assigned to thread: t1
+ID of process running task 1: 11758
+Task 2 assigned to thread: t2
+ID of process running task 2: 11758
+Let us try to understand the above code:
+	We use os.getpid() function to get ID of current process. 
+	print("ID of process running main program: {}".format(os.getpid()))
+As it is clear from the output, the process ID remains same for all threads.
+	We use threading.main_thread() function to get the main thread object. In normal conditions, the main thread is the thread from which the Python interpreter was started. name attribute of thread object is used to get the name of thread. 
+	print("Main thread name: {}".format(threading.main_thread().name))
+	We use the threading.current_thread() function to get the current thread object. 
+	print("Task 1 assigned to thread: {}".format(threading.current_thread().name))
+The diagram given below clears the above concept:
+ 
+So, this was a brief introduction to multithreading in Python. The next article in this series covers synchronization between multiple threads.
+Multithreading in Python | Set 2 (Synchronization)
+3 
+This article discusses the concept of thread synchronization in case of multithreading in Python programming language.
+Synchronization between threads
+Thread synchronization is defined as a mechanism which ensures that two or more concurrent threads do not simultaneously execute some particular program segment known as critical section.
+Critical section refers to the parts of the program where the shared resource is accessed.
+For example, in the diagram below, 3 threads try to access shared resource or critical section at the same time.
+ 
+Concurrent accesses to shared resource can lead to race condition.
+A race condition occurs when two or more threads can access shared data and they try to change it at the same time. As a result, the values of variables may be unpredictable and vary depending on the timings of context switches of the processes.
+Consider the program below to understand the concept of race condition:
+import threading
+ 
+# global variable x
+x = 0
+ 
+def increment():
+    """
+    function to increment global variable x
+    """
+    global x
+    x += 1
+ 
+def thread_task():
+    """
+    task for thread
+    calls increment function 100000 times.
+    """
+    for _ in range(100000):
+        increment()
+ 
+def main_task():
+    global x
+    # setting global variable x as 0
+    x = 0
+ 
+    # creating threads
+    t1 = threading.Thread(target=thread_task)
+    t2 = threading.Thread(target=thread_task)
+ 
+    # start threads
+    t1.start()
+    t2.start()
+ 
+    # wait until threads finish their job
+    t1.join()
+    t2.join()
+ 
+if __name__ == "__main__":
+    for i in range(10):
+        main_task()
+        print("Iteration {0}: x = {1}".format(i,x))
+Output:
+Iteration 0: x = 175005
+Iteration 1: x = 200000
+Iteration 2: x = 200000
+Iteration 3: x = 169432
+Iteration 4: x = 153316
+Iteration 5: x = 200000
+Iteration 6: x = 167322
+Iteration 7: x = 200000
+Iteration 8: x = 169917
+Iteration 9: x = 153589
+In above program:
+	Two threads t1 and t2 are created in main_task function and global variable x is set to 0.
+	Each thread has a target function thread_task in which increment function is called 100000 times.
+	increment function will increment the global variable x by 1 in each call.
+The expected final value of x is 200000 but what we get in 10 iterations of main_task function is some different values.
+This happens due to concurrent access of threads to the shared variable x. This unpredictability in value of x is nothing but race condition.
+Given below is a diagram which shows how can race condition occur in above program:
+ 
+Notice that expected value of x in above diagram is 12 but due to race condition, it turns out to be 11!
+
+Hence, we need a tool for proper synchronization between multiple threads.
+Using Locks
+threading module provides a Lock class to deal with the race conditions. Lock is implemented using a Semaphore object provided by the Operating System.
+A semaphore is a synchronization object that controls access by multiple processes/threads to a common resource in a parallel programming environment. It is simply a value in a designated place in operating system (or kernel) storage that each process/thread can check and then change. Depending on the value that is found, the process/thread can use the resource or will find that it is already in use and must wait for some period before trying again. Semaphores can be binary (0 or 1) or can have additional values. Typically, a process/thread using semaphores checks the value and then, if it using the resource, changes the value to reflect this so that subsequent semaphore users will know to wait.
+Lock class provides following methods:
+	acquire([blocking]) : To acquire a lock. A lock can be blocking or non-blocking. 
+	When invoked with the blocking argument set to True (the default), thread execution is blocked until the lock is unlocked, then lock is set to locked and return True.
+	When invoked with the blocking argument set to False, thread execution is not blocked. If lock is unlocked, then set it to locked and return True else return False immediately.
+	release() : To release a lock. 
+	When the lock is locked, reset it to unlocked, and return. If any other threads are blocked waiting for the lock to become unlocked, allow exactly one of them to proceed.
+	If lock is already unlocked, a ThreadError is raised.
+Consider the example given below:
+import threading
+ 
+# global variable x
+x = 0
+ 
+def increment():
+    """
+    function to increment global variable x
+    """
+    global x
+    x += 1
+ 
+def thread_task(lock):
+    """
+    task for thread
+    calls increment function 100000 times.
+    """
+    for _ in range(100000):
+        lock.acquire()
+        increment()
+        lock.release()
+ 
+def main_task():
+    global x
+    # setting global variable x as 0
+    x = 0
+ 
+    # creating a lock
+    lock = threading.Lock()
+ 
+    # creating threads
+    t1 = threading.Thread(target=thread_task, args=(lock,))
+    t2 = threading.Thread(target=thread_task, args=(lock,))
+ 
+    # start threads
+    t1.start()
+    t2.start()
+ 
+    # wait until threads finish their job
+    t1.join()
+    t2.join()
+ 
+if __name__ == "__main__":
+    for i in range(10):
+        main_task()
+        print("Iteration {0}: x = {1}".format(i,x))
+Run on IDE
+Output:
+Iteration 0: x = 200000
+Iteration 1: x = 200000
+Iteration 2: x = 200000
+Iteration 3: x = 200000
+Iteration 4: x = 200000
+Iteration 5: x = 200000
+Iteration 6: x = 200000
+Iteration 7: x = 200000
+Iteration 8: x = 200000
+Iteration 9: x = 200000
+Let us try to understand the above code step by step:
+	Firstly, a Lock object is created using: 
+	  lock = threading.Lock()
+	Then, lock is passed as target function argument: 
+	  t1 = threading.Thread(target=thread_task, args=(lock,))
+	  t2 = threading.Thread(target=thread_task, args=(lock,))
+	In the critical section of target function, we apply lock using lock.acquire() method. As soon as a lock is acquired, no other thread can access the critical section (here, increment function) until the lock is released using lock.release() method. 
+	  lock.acquire()
+	  increment()
+	  lock.release()
+As you can see in the results, the final value of x comes out to be 200000 every time (which is the expected final result).
+Here is a diagram given below which depicts the implementation of locks in above program:
+ 
+This brings us to the end of this tutorial series on Multithreading in Python.
+Finally, here are are a few advantages and disadvantages of multithreading:
+Advantages:
+	It doesn’t block the user. This is because threads are independent of each other.
+	Better use of system resources is possible since threads execute tasks parallely.
+	Enhanced performance on multi-processor machines.
+	Multi-threaded servers and interactive GUIs use multithreading exclusively.
+Disadvantages:
+	As number of threads increase, complexity increases.
+	Synchronization of shared resources (objects, data) is necessary.
+	It is difficult to debug, result is sometimes unpredictable.
+	Potential deadlocks which leads to starvation, i.e. some threads may not be served with a bad design
+	Constructing and synchronizing threads is CPU/memory intensive.
+
+Mutex can be released only by thread that had acquired it, while you can signal semaphore from any other thread (or process), so semaphores are more suitable for some synchronization problems like producer-consumer.
+Mutex:
+Is a key to a toilet. One person can have the key - occupy the toilet - at the time. When finished, the person gives (frees) the key to the next person in the queue.
+Officially: "Mutexes are typically used to serialise access to a section of re-entrant code that cannot be executed concurrently by more than one thread. A mutex object only allows one thread into a controlled section, forcing other threads which attempt to gain access to that section to wait until the first thread has exited from that section." Ref: Symbian Developer Library
+(A mutex is really a semaphore with value 1.)
+Semaphore:
+Is the number of free identical toilet keys. Example, say we have four toilets with identical locks and keys. The semaphore count - the count of keys - is set to 4 at beginning (all four toilets are free), then the count value is decremented as people are coming in. If all toilets are full, ie. there are no free keys left, the semaphore count is 0. Now, when eq. one person leaves the toilet, semaphore is increased to 1 (one free key), and given to the next person in the queue.
+Officially: "A semaphore restricts the number of simultaneous users of a shared resource up to a maximum number. Threads can request access to the resource (decrementing the semaphore), and can signal that they have finished using the resource (incrementing the semaphore)." Ref: Symbian Developer Library.
+
+
+
+
+
+
+You can't kill a thread from another thread. You need to signal to the other thread that it should end. And by "signal" I don't mean use the signal function, I mean that you have to arrange for some communication between the threads.
+Wouldn't it be better to make the thread so it won't hang / get stalled? Normally you would use some kind of mutex/sempahore/flag to signal the thread and make it fall out of it's loop.
+14down vote	In Python, you simply cannot kill a Thread.
+If you do NOT really need to have a Thread (!), what you can do, instead of using the threading package (http://docs.python.org/2/library/threading.html), is to use the multiprocessing package (http://docs.python.org/2/library/multiprocessing.html). Here, to kill a process, you can simply call the method:
+yourProcess.terminate()  # kill the process!
+Python will kill your process (on Unix through the SIGTERM signal, while on Windows through the TerminateProcess() call). Pay attention to use it while using a Queue or a Pipe! (it may corrupt the data in the Queue/Pipe)
+Note that the multiprocessing.Event and the multiprocessing.Semaphore work exactly in the same way of the threading.Event and the threading.Semaphore respectively. In fact, the first ones are clones of the latters.
+If you REALLY need to use a Thread, there is no way to kill your threads directly. What you can do, however, is to use a "daemon thread". In fact, in Python, a Thread can be flagged as daemon:
+yourThread.daemon = True  # set the Thread as a "daemon thread"
+The main program will exit when no alive non-daemon threads are left. In other words, when your main thread (which is, of course, a non-daemon thread) will finish its operations, the program will exit even if there are still some daemon threads working.
+Note that it is necessary to set a Thread as daemon before the start() method is called!
+Of course you can, and should, use daemon even with multiprocessing. Here, when the main process exits, it attempts to terminate all of its daemonic child processes.
+Finally, please, note that sys.exit() and os.kill() are not choices.
+Killing a thread removes any guarantees that try/finally blocks set up so you might leave locks locked, files open, etc.
+The only time you can argue that forcibly killing threads is a good idea is to kill a program fast, but never single threads.
+
+
+Python threading module provides _Thread_stop() and _Thread_delete() to kill threads. 
+>>> from threading import *
+>>> for thread in enumerate():
+... if (thread.isAlive()):
+... thread._Thread_stop()
+...
+
+Multiprocessing in Python | Set 1 (Introduction)
+What is multiprocessing?
+Multiprocessing refers to the ability of a system to support more than one processor at the same time. Applications in a multiprocessing system are broken to smaller routines that run independently. The operating system allocates these threads to the processors improving performance of the system.
+Why multiprocessing?
+Consider a computer system with a single processor. If it is assigned several processes at the same time, it will have to interrupt each task and switch briefly to another, to keep all of the processes going.
+This situation is just like a chef working in a kitchen alone. He has to do several tasks like baking, stirring, kneading dough, etc.
+So the gist is that: The more tasks you must do at once, the more difficult it gets to keep track of them all, and keeping the timing right becomes more of a challenge.
+This is where the concept of multiprocessing arises!
+A multiprocessing system can have:
+	multiprocessor, i.e. a computer with more than one central processor.
+	multi-core processor, i.e. a single computing component with two or more independent actual processing units (called “cores”).
+Here, the CPU can easily executes several tasks at once, with each task using its own processor.
+It is just like the chef in last situation being assisted by his assistants. Now, they can divide the tasks among themselves and chef doesn’t need to switch between his tasks.
+Multiprocessing in Python
+In Python, the multiprocessing module includes a very simple and intuitive API for dividing work between multiple processes.
+Let us consider a simple example using multiprocessing module:
+import multiprocessing
+ 
+def print_cube(num):
+    """
+    function to print cube of given num
+    """
+    print("Cube: {}".format(num * num * num))
+ 
+def print_square(num):
+    """
+    function to print square of given num
+    """
+    print("Square: {}".format(num * num))
+ 
+if __name__ == "__main__":
+    # creating processes
+    p1 = multiprocessing.Process(target=print_square, args=(10, ))
+    p2 = multiprocessing.Process(target=print_cube, args=(10, ))
+ 
+    # starting process 1
+    p1.start()
+    # starting process 2
+    p2.start()
+ 
+    # wait until process 1 is finished
+    p1.join()
+    # wait until process 2 is finished
+    p2.join()
+ 
+    # both processes finished
+    print("Done!")
+
+Once the processes start, the current program also keeps on executing. In order to stop execution of current program until a process is complete, we use join method. 
+As a result, the current program will first wait for the completion of p1 and then p2. Once, they are completed, the next statements of current program are executed.
+Square: 100
+Cube: 1000
+Done!
+Let us consider another program to understand the concept of different processes running on same python script. In this example below, we print the ID of the processes running the target functions:
+import multiprocessing
+import os
+ 
+def worker1():
+    # printing process id
+    print("ID of process running worker1: {}".format(os.getpid()))
+ 
+def worker2():
+    # printing process id
+    print("ID of process running worker2: {}".format(os.getpid()))
+ 
+if __name__ == "__main__":
+    # printing main program process id
+    print("ID of main process: {}".format(os.getpid()))
+ 
+    # creating processes
+    p1 = multiprocessing.Process(target=worker1)
+    p2 = multiprocessing.Process(target=worker2)
+ 
+    # starting processes
+    p1.start()
+    p2.start()
+ 
+    # process IDs
+    print("ID of process p1: {}".format(p1.pid))
+    print("ID of process p2: {}".format(p2.pid))
+ 
+    # wait until processes are finished
+    p1.join()
+    p2.join()
+ 
+    # both processes finished
+    print("Both processes finished execution!")
+ 
+    # check if processes are alive
+    print("Process p1 is alive: {}".format(p1.is_alive()))
+    print("Process p2 is alive: {}".format(p2.is_alive()))
+ID of main process: 28628
+ID of process running worker1: 29305
+ID of process running worker2: 29306
+ID of process p1: 29305
+ID of process p2: 29306
+Both processes finished execution!
+Process p1 is alive: False
+Process p2 is alive: False
+ 
+https://www.geeksforgeeks.org/multiprocessing-python-set-1/
+
+Multiprocessing in Python | Set 2 (Communication between processes)
+This articles discusses the concept of data sharing and message passing between processes while using multiprocessing module in Python.
+In multiprocessing, any newly created process will do following:
+	run independently
+	have their own memory space.
+
+
+
+
+Consider the program below to understand this concept:
+import multiprocessing
+ 
+# empty list with global scope
+result = []
+ 
+def square_list(mylist):
+    """
+    function to square a given list
+    """
+    global result
+    # append squares of mylist to global list result
+    for num in mylist:
+        result.append(num * num)
+    # print global list result
+    print("Result(in process p1): {}".format(result))
+ 
+if __name__ == "__main__":
+    # input list
+    mylist = [1,2,3,4]
+ 
+    # creating new process
+    p1 = multiprocessing.Process(target=square_list, args=(mylist,))
+    # starting process
+    p1.start()
+    # wait until process is finished
+    p1.join()
+ 
+    # print global result list
+    print("Result(in main program): {}".format(result))
+Result(in process p1): [1, 4, 9, 16]
+Result(in main program): []
+In above example, we try to print contents of global list result at two places:
+	In square_list function. Since, this function is called by process p1, result list is changed in memory space of process p1 only.
+	After the completion of process p1 in main program. Since main program is run by a different process, its memory space still contains the empty result list.
+Diagram shown below clears this concept:
+ 
+Sharing data between processes
+1.	Shared memory : multiprocessing module provides Array and Value objects to share data between processes. 
+	Array: a ctypes array allocated from shared memory.
+	Value: a ctypes object allocated from shared memory.
+Given below is a simple example showing use of Array and Value for sharing data between processes.
+import multiprocessing
+ 
+def square_list(mylist, result, square_sum):
+    """
+    function to square a given list
+    """
+    # append squares of mylist to result array
+    for idx, num in enumerate(mylist):
+        result[idx] = num * num
+ 
+    # square_sum value
+    square_sum.value = sum(result)
+ 
+    # print result Array
+    print("Result(in process p1): {}".format(result[:]))
+ 
+    # print square_sum Value
+    print("Sum of squares(in process p1): {}".format(square_sum.value))
+ 
+if __name__ == "__main__":
+    # input list
+    mylist = [1,2,3,4]
+ 
+    # creating Array of int data type with space for 4 integers
+    result = multiprocessing.Array('i', 4)
+ 
+    # creating Value of int data type
+    square_sum = multiprocessing.Value('i')
+ 
+    # creating new process
+    p1 = multiprocessing.Process(target=square_list, args=(mylist, result, square_sum))
+ 
+    # starting process
+    p1.start()
+ 
+    # wait until process is finished
+    p1.join()
+ 
+    # print result array
+    print("Result(in main program): {}".format(result[:]))
+ 
+    # print square_sum Value
+    print("Sum of squares(in main program): {}".format(square_sum.value))
+Result(in process p1): [1, 4, 9, 16]
+Sum of squares(in process p1): 30
+Result(in main program): [1, 4, 9, 16]
+Sum of squares(in main program): 30
+Let us try to understand the above code line by line:
+	First of all, we create an Array result like this: 
+	  result = multiprocessing.Array('i', 4)
+	First argument is the data type. ‘i’ stands for integer whereas ‘d’ stands for float data type.
+	Second argument is the size of array. Here, we create an array of 4 elements.
+Similarly, we create a Value square_sum like this:
+  square_sum = multiprocessing.Value('i')
+Here, we only need to specify data type. The value can be given an initial value(say 10) like this:
+  square_sum = multiprocessing.Value('i', 10)
+	Secondly, we pass result and square_sum as arguments while creating Process object. 
+	  p1 = multiprocessing.Process(target=square_list, args=(mylist, result, square_sum))
+	result array elements are given a value by specifying index of array element. 
+	  for idx, num in enumerate(mylist):
+	      result[idx] = num * num
+square_sum is given a value by using its value attribute:
+  square_sum.value = sum(result)
+	In order to print result array elements, we use result[:] to print complete array. 
+	  print("Result(in process p1): {}".format(result[:]))
+Value of square_sum is simply printed as:
+  print("Sum of squares(in process p1): {}".format(square_sum.value))
+Here is a diagram depicting how processes share Array and Value object:
+ 
+2.	Server process : Whenever a python program starts, a server process is also started. From there on, whenever a new process is needed, the parent process connects to the server and requests it to fork a new process.
+A server process can hold Python objects and allows other processes to manipulate them using proxies.
+multiprocessing module provides a Manager class which controls a server process. Hence, managers provide a way to create data which can be shared between different processes.
+Server process managers are more flexible than using shared memory objects because they can be made to support arbitrary object types like lists, dictionaries, Queue, Value, Array, etc. Also, a single manager can be shared by processes on different computers over a network. They are, however, slower than using shared memory.
+Consider the example given below:
+import multiprocessing
+ 
+def print_records(records):
+    """
+    function to print record(tuples) in records(list)
+    """
+    for record in records:
+        print("Name: {0}\nScore: {1}\n".format(record[0], record[1]))
+ 
+def insert_record(record, records):
+    """
+    function to add a new record to records(list)
+    """
+    records.append(record)
+    print("New record added!\n")
+ 
+if __name__ == '__main__':
+    with multiprocessing.Manager() as manager:
+        # creating a list in server process memory
+        records = manager.list([('Sam', 10), ('Adam', 9), ('Kevin',9)])
+        # new record to be inserted in records
+        new_record = ('Jeff', 8)
+ 
+        # creating new processes
+        p1 = multiprocessing.Process(target=insert_record, args=(new_record, records))
+        p2 = multiprocessing.Process(target=print_records, args=(records,))
+ 
+        # running process p1 to insert new record
+        p1.start()
+        p1.join()
+ 
+        # running process p2 to print records
+        p2.start()
+        p2.join()
+New record added!
+
+Name: Sam
+Score: 10
+
+Name: Adam
+Score: 9
+
+Name: Kevin
+Score: 9
+
+Name: Jeff
+Score: 8
+Let us try to understand above piece of code:
+	First of all, we create a manager object using: 
+	  with multiprocessing.Manager() as manager:
+All the lines under with statement block are under the scope of manager object.
+	Then, we create a list records in server process memory using: 
+	  records = manager.list([('Sam', 10), ('Adam', 9), ('Kevin',9)])
+Similarly, you can create a dictionary as manager.dict method.
+	Finally, we create to processes p1 (to insert a new record in records list) and p2 (to print records) and run them while passing records as one of the arguments.
+The concept of server process is depicted in the diagram shown below:
+ 
+Communication between processes
+Effective use of multiple processes usually requires some communication between them, so that work can be divided and results can be aggregated.
+multiprocessing supports two types of communication channel between processes:
+	Queue
+	Pipe
+1.	Queue : A simple way to communicate between process with multiprocessing is to use a Queue to pass messages back and forth. Any Python object can pass through a Queue.
+Note: The multiprocessing.Queue class is a near clone of queue.Queue.
+Consider the example program given below:
+import multiprocessing
+ 
+def square_list(mylist, q):
+    """
+    function to square a given list
+    """
+    # append squares of mylist to queue
+    for num in mylist:
+        q.put(num * num)
+ 
+def print_queue(q):
+    """
+    function to print queue elements
+    """
+    print("Queue elements:")
+    while not q.empty():
+        print(q.get())
+    print("Queue is now empty!")
+ 
+if __name__ == "__main__":
+    # input list
+    mylist = [1,2,3,4]
+ 
+    # creating multiprocessing Queue
+    q = multiprocessing.Queue()
+ 
+    # creating new processes
+    p1 = multiprocessing.Process(target=square_list, args=(mylist, q))
+    p2 = multiprocessing.Process(target=print_queue, args=(q,))
+ 
+    # running process p1 to square list
+    p1.start()
+    p1.join()
+ 
+    # running process p2 to get queue elements
+    p2.start()
+    p2.join()
+2.	Queue elements:
+3.	1
+4.	4
+5.	9
+6.	16
+7.	Queue is now empty!
+Given below is a simple diagram depicting the operations on queue:
+ 
+8.	Pipes : A pipe can have only two endpoints. Hence, it is preferred over queue when only two-way communication is required. 
+multiprocessing module provides Pipe() function which returns a pair of connection objects connected by a pipe. The two connection objects returned by Pipe() represent the two ends of the pipe. Each connection object has send() and recv() methods (among others).
+Consider the program given below:
+import multiprocessing
+ 
+def sender(conn, msgs):
+    """
+    function to send messages to other end of pipe
+    """
+    for msg in msgs:
+        conn.send(msg)
+        print("Sent the message: {}".format(msg))
+    conn.close()
+ 
+def receiver(conn):
+    """
+    function to print the messages received from other
+    end of pipe
+    """
+    while 1:
+        msg = conn.recv()
+        if msg == "END":
+            break
+        print("Received the message: {}".format(msg))
+ 
+if __name__ == "__main__":
+    # messages to be sent
+    msgs = ["hello", "hey", "hru?", "END"]
+ 
+    # creating a pipe
+    parent_conn, child_conn = multiprocessing.Pipe()
+ 
+    # creating new processes
+    p1 = multiprocessing.Process(target=sender, args=(parent_conn,msgs))
+    p2 = multiprocessing.Process(target=receiver, args=(child_conn,))
+ 
+    # running processes
+    p1.start()
+    p2.start()
+ 
+    # wait until processes finish
+    p1.join()
+    p2.join()
+Sent the message: hello
+Sent the message: hey
+Sent the message: hru?
+Received the message: hello
+Sent the message: END
+Received the message: hey
+Received the message: hru?
+Consider the diagram given below which shows the relation b/w pipe and processes:
+ 
+
+
+
+•	A Pipe() can only have two endpoints.
+•	A Queue() can have multiple producers and consumers.
+
+When to use them
+If you need more than two points to communicate, use a Queue().
+If you need absolute performance, a Pipe() is much faster because Queue() is built on top of Pipe().
+
+Note: Data in a pipe may become corrupted if two processes (or threads) try to read from or write to the same end of the pipe at the same time. Of course there is no risk of corruption from processes using different ends of the pipe at the same time. Also note that, Queues do proper synchronization between processes, at the expense of more complexity. Hence, queues are said to be thread and process safe!
+
+Synchronization between processes
+Process synchronization is defined as a mechanism which ensures that two or more concurrent processes do not simultaneously execute some particular program segment known as critical section.
+Critical section refers to the parts of the program where the shared resource is accessed.
+ 
+Concurrent accesses to shared resource can lead to race condition.
+A race condition occurs when two or more processes can access shared data and they try to change it at the same time. As a result, the values of variables may be unpredictable and vary depending on the timings of context switches of the processes.
+
+Consider the program below to understand the concept of race condition:
+# Python program to illustrate 
+# the concept of race condition
+# in multiprocessing
+import multiprocessing
+ 
+# function to withdraw from account
+def withdraw(balance):    
+    for _ in range(10000):
+        balance.value = balance.value - 1
+ 
+# function to deposit to account
+def deposit(balance):    
+    for _ in range(10000):
+        balance.value = balance.value + 1
+ 
+def perform_transactions():
+ 
+    # initial balance (in shared memory)
+    balance = multiprocessing.Value('i', 100)
+ 
+    # creating new processes
+    p1 = multiprocessing.Process(target=withdraw, args=(balance,))
+    p2 = multiprocessing.Process(target=deposit, args=(balance,))
+ 
+    # starting processes
+    p1.start()
+    p2.start()
+ 
+    # wait until processes are finished
+    p1.join()
+    p2.join()
+ 
+    # print final balance
+    print("Final balance = {}".format(balance.value))
+ 
+if __name__ == "__main__":
+    for _ in range(10):
+ 
+        # perform same transaction process 10 times
+        perform_transactions()
+If you run above program, you will get some unexpected values like this:
+Final balance = 1311
+Final balance = 199
+Final balance = 558
+Final balance = -2265
+Final balance = 1371
+Final balance = 1158
+Final balance = -577
+Final balance = -1300
+Final balance = -341
+Final balance = 157
+In above program, 10000 withdraw and 10000 deposit transactions are carried out with initial balance as 100. The expected final balance is 100 but what we get in 10 iterations of perform_transactions function is some different values.
+This happens due to concurrent access of processes to the shared data balance. This unpredictability in balance value is nothing but race condition.
+Using Locks
+multiprocessing module provides a Lock class to deal with the race conditions. Lock is implemented using a Semaphore object provided by the Operating System.
+A semaphore is a synchronization object that controls access by multiple processes to a common resource in a parallel programming environment. It is simply a value in a designated place in operating system (or kernel) storage that each process can check and then change. Depending on the value that is found, the process can use the resource or will find that it is already in use and must wait for some period before trying again. Semaphores can be binary (0 or 1) or can have additional values. Typically, a process using semaphores checks the value and then, if it using the resource, changes the value to reflect this so that subsequent semaphore users will know to wait.
+Consider the example given below:
+# Python program to illustrate the concept of locks in multiprocessing
+import multiprocessing
+ 
+# function to withdraw from account
+def withdraw(balance, lock):    
+    for _ in range(10000):
+        lock.acquire()
+        balance.value = balance.value - 1
+        lock.release()
+ 
+# function to deposit to account
+def deposit(balance, lock):    
+    for _ in range(10000):
+        lock.acquire()
+        balance.value = balance.value + 1
+        lock.release()
+ 
+def perform_transactions():
+ 
+    # initial balance (in shared memory)
+    balance = multiprocessing.Value('i', 100)
+ 
+    # creating a lock object
+    lock = multiprocessing.Lock()
+ 
+    # creating new processes
+    p1 = multiprocessing.Process(target=withdraw, args=(balance,lock))
+    p2 = multiprocessing.Process(target=deposit, args=(balance,lock))
+ 
+    # starting processes
+    p1.start()
+    p2.start()
+ 
+    # wait until processes are finished
+    p1.join()
+    p2.join()
+ 
+    # print final balance
+    print("Final balance = {}".format(balance.value))
+ 
+if __name__ == "__main__":
+    for _ in range(10):
+ 
+        # perform same transaction process 10 times
+        perform_transactions()
+Output:
+Final balance = 100
+Final balance = 100
+Final balance = 100
+Final balance = 100
+Final balance = 100
+Final balance = 100
+Final balance = 100
+Final balance = 100
+Final balance = 100
+Final balance = 100
+Pooling between processes
+# Python program to find squares of numbers in a given list
+def square(n):
+    return (n*n)
+ 
+if __name__ == "__main__":
+ 
+    # input list
+    mylist = [1,2,3,4,5]
+ 
+    # empty list to store result
+    result = []
+ 
+    for num in mylist:
+        result.append(square(num))
+ 
+    print(result)
+Output:
+[1, 4, 9, 16, 25]
+It is a simple program to calculate squares of elements of a given list. In a multi-core/multi-processor system, consider the diagram below to understand how above program will work:
+ 
+Only one of the cores is used for program execution and it’s quite possible that other cores remain idle.
+In order to utilize all the cores, multiprocessing module provides a Pool class. The Pool class represents a pool of worker processes. It has methods which allows tasks to be offloaded to the worker processes in a few different ways. Consider the diagram below:
+ 
+Here, the task is offloaded/distributed among the cores/processes automatically by Pool object. User doesn’t need to worry about creating processes explicitly.
+Consider the program given below:
+# Python program to understand the concept of pool
+import multiprocessing
+import os
+ 
+def square(n):
+    print("Worker process id for {0}: {1}".format(n, os.getpid()))
+    return (n*n)
+ 
+if __name__ == "__main__":
+    # input list
+    mylist = [1,2,3,4,5]
+ 
+    # creating a pool object
+    p = multiprocessing.Pool()
+ 
+    # map list to target function
+    result = p.map(square, mylist)
+ 
+    print(result)
+Output:
+Worker process id for 2: 4152
+Worker process id for 1: 4151
+Worker process id for 4: 4151
+Worker process id for 3: 4153
+Worker process id for 5: 4152
+[1, 4, 9, 16, 25]
+Let us try to understand above code step by step:
+	We create a Pool object using: 
+	  p = multiprocessing.Pool()
+There are a few arguments for gaining more control over offloading of task. These are:
+	processes: specify the number of worker processes.
+	maxtasksperchild: specify the maximum number of task to be assigned per child.
+All the processes in a pool can be made to perform some initialization using these arguments:
+	initializer: specify an initialization function for worker processes.
+	initargs: arguments to be passed to initializer.
+	Now, in order to perform some task, we have to map it to some function. In the example above, we map mylist to square function. As a result, the contents of mylist and definition of square will be distributed among the cores. 
+	  result = p.map(square, mylist)
+	Once all the worker processes finish their task, a list is returned with the final result.
+
+
+The threading module uses threads, the multiprocessing module uses processes. The difference is that threads run in the same memory space, while processes have separate memory. This makes it a bit harder to share objects between processes with multiprocessing. Since threads use the same memory, precautions have to be taken or two threads will write to the same memory at the same time. This is what the global interpreter lock is for.
+Spawning processes is a bit slower than spawning threads. Once they are running, there is not much difference.
+
