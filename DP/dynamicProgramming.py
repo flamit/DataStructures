@@ -1,4 +1,4 @@
-# Largest Sum Contiguous Subarray =>  Kadanea's Algorithm:
+# Largest Sum Contiguous Subarray =>  Kadanea's Algorithm:                      e.g. [-2, -3, 4, -1, -2, 1, 5, -3]
 # Time Complexity:  O(n)
 def maxSubArraySum(a,size):
     max_so_far =a[0]
